@@ -21,7 +21,7 @@
 
 **Pourquoi :** Imposé par le brief pédagogique. Laravel est le framework PHP le plus mature pour construire des API REST, avec un ORM (Eloquent), un système de migrations, et des seeders — tous explicitement demandés dans le brief.
 
-**Décision retenue :** Architecture API REST découplée retenue volontairement pour appliquer les acquis du cours sans introduire un nouveau framework (Inertia.js écarté). Points de vigilance à garder en tête : gestion du CORS, authentification côté client avec Sanctum, et gestion des états Vue (Pinia recommandé).
+**Décision retenue :** Architecture API REST découplée retenue volontairement pour appliquer les acquis du cours sans introduire un nouveau framework (Inertia.js écarté). Points de vigilance à garder en tête : gestion du CORS et authentification côté client avec Sanctum.
 
 ---
 
@@ -37,17 +37,89 @@
 
 ### Vue 3 — Front-end
 
-**Pourquoi :** Imposé par le brief. Vue 3 avec la Composition API est la version recommandée. Elle est parfaitement adaptée aux besoins du projet : composants réactifs pour le quizz, le scrollytelling, et le compteur en temps réel des inscrits. La gestion des états partagés entre composants sera assurée par **Pinia** (store officiel Vue 3 — remplaçant de Vuex, utile notamment pour la progression du quizz et l'état de session du dashboard).
+**Pourquoi :** Imposé par le brief. Vue 3 avec la Composition API est la version recommandée. Elle est parfaitement adaptée aux besoins du projet : composants réactifs pour le quizz, le scrollytelling, et le compteur en temps réel des inscrits.
 
-**Architecture SPA complète** retenue pour les trois espaces (site public, dashboard, sites cobrandés), cohérente avec l'API REST Laravel.
+#### Architecture multi-entry — 3 apps Vue indépendantes
+
+Le projet est structuré en **3 applications Vue distinctes**, chacune montée sur sa propre Blade view servie par Laravel. Il n'y a pas de rechargement entre les vues d'un même espace, mais un rechargement complet est normal entre les espaces (les utilisateurs sont différents).
+
+```
+resources/js/
+├── public/app.js       → app Vue du site public
+├── dashboard/app.js    → app Vue du dashboard
+└── cobrand/app.js      → app Vue des sites cobrandés
+
+resources/views/
+├── public.blade.php    → point d'entrée site public
+├── dashboard.blade.php → point d'entrée dashboard
+└── cobrand.blade.php   → point d'entrée sites cobrandés
+```
+
+Laravel sert uniquement ces 3 vues. Tout le reste (navigation, affichage des sections) est géré par Vue à l'intérieur de chaque app.
+
+#### Navigation par hash — sans Vue Router
+
+La navigation entre sections à l'intérieur de chaque app se fait via le **hash de l'URL** (`#section`), sans Vue Router. Le navigateur ne recharge pas la page lors d'un changement de hash — Vue écoute l'événement `hashchange` et affiche le bon composant.
+
+```js
+// Exemple dans chaque app
+const currentView = ref(window.location.hash || '#home')
+
+window.addEventListener('hashchange', () => {
+  currentView.value = window.location.hash
+})
+```
+
+```html
+<!-- Navigation -->
+<a href="#trophees">Trophées</a>
+<a href="#label">Label</a>
+
+<!-- Affichage conditionnel -->
+<HomeView v-if="currentView === '#home'" />
+<TropheesView v-if="currentView === '#trophees'" />
+<LabelView v-if="currentView === '#label'" />
+```
+
+URLs résultantes par espace :
+
+| Espace | Exemples d'URLs |
+|--------|----------------|
+| Site public | `hug-collecte.ch/#trophees`, `hug-collecte.ch/#label` |
+| Dashboard | `hug-collecte.ch/dashboard#collectes`, `hug-collecte.ch/dashboard#collecte/42` |
+| Site cobrandé | `hug-collecte.ch/abc123#prevention`, `hug-collecte.ch/abc123#quiz` |
+
+#### Gestion d'état partagé — composable module-level
+
+Pour partager de l'état entre composants (ex : progression du quizz entre la partie 1 et la partie 2), on utilise le **pattern composable avec ref au niveau du module** — sans Pinia ni Vuex.
+
+```js
+// composables/useQuizStore.js
+import { ref } from 'vue'
+
+const answers = ref([])      // ← déclaré HORS de la fonction = singleton partagé
+const currentStep = ref(1)
+
+export function useQuizStore() {
+  function addAnswer(answer) {
+    answers.value.push(answer)
+  }
+  function nextStep() {
+    currentStep.value++
+  }
+  return { answers, currentStep, addAnswer, nextStep }
+}
+```
+
+Tous les composants qui appellent `useQuizStore()` partagent la même instance de `answers` et `currentStep`.
 
 #### Inventaire des pages et niveau de réactivité
 
 | Espace | Page | Réactivité | Justification |
 |--------|------|-----------|---------------|
-| **Site public** | Landing / Accueil | Faible | Contenu statique, navigation — composant Vue léger suffisant |
-| **Site public** | Page Trophées | Faible | Affichage d'une liste statique chargée depuis l'API au montage |
-| **Site public** | Page Label | Faible | Affichage d'une liste statique chargée depuis l'API au montage |
+| **Site public** | Landing / Accueil | Faible | Contenu statique, navigation par hash |
+| **Site public** | Page Trophées | Faible | Liste statique chargée depuis l'API au montage |
+| **Site public** | Page Label | Faible | Liste statique chargée depuis l'API au montage |
 | **Site public** | Page Information / Don du sang | Faible | Contenu éditorial statique, pas d'interaction |
 | **Site public** | Formulaire de contact | Moyenne | Validation en temps réel, feedback d'envoi, gestion des erreurs |
 | **Dashboard** | Page login | Moyenne | Formulaire avec validation, gestion d'erreur, redirection |
@@ -57,10 +129,10 @@
 | **Site cobrandé** | Page d'accueil collecte | Haute | Compteur en temps réel des inscrits (polling API Onedoc), thème dynamique |
 | **Site cobrandé** | Page Prévention (Scrollytelling) | Très haute | Animations déclenchées au scroll, transitions entre sections |
 | **Site cobrandé** | Quizz (partie 1 — éliminatoire) | Très haute | Navigation entre questions, logique conditionnelle, redirection externe |
-| **Site cobrandé** | Quizz (partie 2 — informatif) | Très haute | Pop-ups contextuelles, skip possible, état partagé avec partie 1 (Pinia) |
+| **Site cobrandé** | Quizz (partie 2 — informatif) | Très haute | Pop-ups contextuelles, skip possible, état partagé via composable |
 | **Site cobrandé** | Page de redirection Onedoc | Faible | Page de transition simple vers lien externe |
 
-**Synthèse :** Le dashboard et les sites cobrandés concentrent l'essentiel de la complexité réactive. Les pages du site public sont quasi-statiques — elles bénéficient de Vue pour la cohérence de l'architecture SPA (routing, composants réutilisables) mais ne nécessitent pas de logique réactive poussée.
+**Synthèse :** Le dashboard et les sites cobrandés concentrent l'essentiel de la complexité réactive. Les pages du site public sont quasi-statiques.
 
 ---
 
@@ -352,4 +424,6 @@ Ce workflow ne déploie rien — il s'assure uniquement que `composer install` e
 | Branches | `feature/fix` → `develop` → `main` | Convention standard, `develop` seule branche à merger dans `main` |
 | CI sur `develop` | Workflow build-check (sans déploiement) | Détecte les erreurs de build avant qu'elles atteignent `main` |
 | Co-branding | Theming DaisyUI via variables CSS dynamiques | À architecturer dès la modélisation |
-| Périmètre Vue | SPA complète | Cohérent avec l'architecture API REST retenue |
+| Architecture Vue | Multi-entry : 3 apps Vue indépendantes | Un espace = une app, pas de rechargement entre espaces différents |
+| Navigation | Hash-based sans Vue Router | Pattern maîtrisé, aucune librairie supplémentaire |
+| État partagé | Composable module-level (ref singleton) | Pattern déjà utilisé, pas besoin de Pinia |
