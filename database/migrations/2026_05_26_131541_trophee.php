@@ -6,19 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        //
+        Schema::create('trophees', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->year('year');
+        });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('trophee');
+        Schema::dropIfExists('trophees');
     }
 };

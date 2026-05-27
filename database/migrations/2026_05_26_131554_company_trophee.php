@@ -6,13 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-    {
-        //
-    }
+{
+    Schema::create('company_trophees', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('company_id')->constrained()->restrictOnDelete();
+        $table->foreignId('trophee_id')->constrained()->restrictOnDelete();
+        $table->unique(['company_id', 'trophee_id']);
+        $table->integer('rank');
+    });
+}
+
 
     /**
      * Reverse the migrations.

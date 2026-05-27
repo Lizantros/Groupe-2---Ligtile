@@ -6,19 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-    {
-        //
-    }
+{
+    Schema::create('labels', function (Blueprint $table) {
+        $table->id();
+        $table->string('name', 50);
+    });
+}
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('label');
+        Schema::dropIfExists('labels');
     }
 };
