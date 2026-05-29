@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Company;
 use App\Models\Collection;
 use App\Models\Label;
-use App\Models\Trophy;
+use App\Models\Trophee;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -192,40 +192,40 @@ class DatabaseSeeder extends Seeder
         // ===== TROPHIES =====
 
         // 2023 : Nestlé rank 1 (plus grosse donation), UBS rank 2
-        Trophy::create([
+        Trophee::create([
             'company_id' => $nestlé->id,
             'year' => 2023,
             'rank' => 1,
         ]);
 
-        Trophy::create([
+        Trophee::create([
             'company_id' => $ubs->id,
             'year' => 2023,
             'rank' => 2,
         ]);
 
         // 2024 : UBS rank 1 (la plus régulière)
-        Trophy::create([
+        Trophee::create([
             'company_id' => $ubs->id,
             'year' => 2024,
             'rank' => 1,
         ]);
 
         // 2025 : UBS rank 1 (la plus régulière)
-        Trophy::create([
+        Trophee::create([
             'company_id' => $ubs->id,
             'year' => 2025,
             'rank' => 1,
         ]);
 
         // 2026 : Nestlé rank 1 (collecte en cours, belle performance), UBS rank 2
-        Trophy::create([
+        Trophee::create([
             'company_id' => $nestlé->id,
             'year' => 2026,
             'rank' => 1,
         ]);
 
-        Trophy::create([
+        Trophee::create([
             'company_id' => $ubs->id,
             'year' => 2026,
             'rank' => 2,
