@@ -2,39 +2,87 @@
 
 namespace Database\Seeders;
 
+use App\Models\Address;
 use App\Models\Company;
 use App\Models\Collection;
 use App\Models\Label;
 use App\Models\Trophee;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // ===== USERS =====
+        $adminUser = User::create([
+            'first_name' => 'Admin',
+            'last_name' => 'HUG',
+            'email' => 'admin@hug.ch',
+            'password' => bcrypt('password123'),
+        ]);
+
+        // ===== ADDRESSES =====
+        $addressUbs = Address::create([
+            'street' => 'Rue de la Banque',
+            'number' => '1',
+            'postal_code' => '1200',
+            'city' => 'Genève',
+        ]);
+
+        $addressCoop = Address::create([
+            'street' => 'Avenue Coop',
+            'number' => '50',
+            'postal_code' => '8050',
+            'city' => 'Zurich',
+        ]);
+
+        $addressNestlé = Address::create([
+            'street' => 'Route Nestlé',
+            'number' => '77',
+            'postal_code' => '1800',
+            'city' => 'Vevey',
+        ]);
+
+        $addressRolex = Address::create([
+            'street' => 'Rue de la Manufacture',
+            'number' => '3',
+            'postal_code' => '1204',
+            'city' => 'Genève',
+        ]);
+
         // ===== COMPANIES =====
         $ubs = Company::create([
             'name' => 'UBS',
-            'slug' => 'ubs',
-            'description' => 'UBS AG - Banque suisse',
+            'address_id' => $addressUbs->id,
+            'email' => 'contact@ubs.ch',
+            'phone_number' => '+41 44 234 85 00',
+            'nb_employee' => 5000,
         ]);
 
         $coop = Company::create([
             'name' => 'Coop',
-            'slug' => 'coop',
-            'description' => 'Coop - Chaîne de distribution',
+            'address_id' => $addressCoop->id,
+            'email' => 'contact@coop.ch',
+            'phone_number' => '+41 44 724 72 47',
+            'nb_employee' => 8000,
         ]);
 
         $nestlé = Company::create([
             'name' => 'Nestlé',
-            'slug' => 'nestlé',
-            'description' => 'Nestlé - Alimentation & nutrition',
+            'address_id' => $addressNestlé->id,
+            'email' => 'contact@nestlé.ch',
+            'phone_number' => '+41 21 924 24 24',
+            'nb_employee' => 3000,
         ]);
 
         $rolex = Company::create([
             'name' => 'Rolex',
-            'slug' => 'rolex',
-            'description' => 'Rolex - Horlogerie suisse',
+            'address_id' => $addressRolex->id,
+            'email' => 'contact@rolex.ch',
+            'phone_number' => '+41 22 302 22 00',
+            'nb_employee' => 800,
         ]);
 
         // ===== COLLECTIONS =====
@@ -42,193 +90,227 @@ class DatabaseSeeder extends Seeder
         // UBS : 2023, 2024, 2025 (terminées) + 2026 (EN COURS)
         Collection::create([
             'company_id' => $ubs->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressUbs->id,
             'start_date' => '2023-02-01',
             'end_date' => '2023-02-28',
-            'blood_units_collected' => 150,
-            'registered_count' => 250,
+            'primary_color' => '#EB001B',
+            'logo_url' => 'https://logo.clearbit.com/ubs.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/ubs-2023',
+            'public_token' => Str::random(32),
+            'nb_registered' => 250,
         ]);
 
         Collection::create([
             'company_id' => $ubs->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressUbs->id,
             'start_date' => '2024-03-01',
             'end_date' => '2024-03-31',
-            'blood_units_collected' => 180,
-            'registered_count' => 300,
+            'primary_color' => '#EB001B',
+            'logo_url' => 'https://logo.clearbit.com/ubs.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/ubs-2024',
+            'public_token' => Str::random(32),
+            'nb_registered' => 300,
         ]);
 
         Collection::create([
             'company_id' => $ubs->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressUbs->id,
             'start_date' => '2025-04-01',
             'end_date' => '2025-04-30',
-            'blood_units_collected' => 200,
-            'registered_count' => 320,
+            'primary_color' => '#EB001B',
+            'logo_url' => 'https://logo.clearbit.com/ubs.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/ubs-2025',
+            'public_token' => Str::random(32),
+            'nb_registered' => 320,
         ]);
 
         Collection::create([
             'company_id' => $ubs->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressUbs->id,
             'start_date' => '2026-05-01',
-            'end_date' => '2026-06-30', // EN COURS (aujourd'hui = 2026-06-10)
-            'blood_units_collected' => 80,
-            'registered_count' => 150,
+            'end_date' => '2026-06-30',
+            'primary_color' => '#EB001B',
+            'logo_url' => 'https://logo.clearbit.com/ubs.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/ubs-2026',
+            'public_token' => Str::random(32),
+            'nb_registered' => 150,
         ]);
 
-        // Coop : 2023, 2024 (terminées) + 2025 (TERMINÉE)
+        // Coop : 2023, 2024, 2025 (terminées)
         Collection::create([
             'company_id' => $coop->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressCoop->id,
             'start_date' => '2023-05-01',
             'end_date' => '2023-05-31',
-            'blood_units_collected' => 100,
-            'registered_count' => 180,
+            'primary_color' => '#FF6B35',
+            'logo_url' => 'https://logo.clearbit.com/coop.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/coop-2023',
+            'public_token' => Str::random(32),
+            'nb_registered' => 180,
         ]);
 
         Collection::create([
             'company_id' => $coop->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressCoop->id,
             'start_date' => '2024-06-01',
             'end_date' => '2024-06-30',
-            'blood_units_collected' => 120,
-            'registered_count' => 200,
+            'primary_color' => '#FF6B35',
+            'logo_url' => 'https://logo.clearbit.com/coop.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/coop-2024',
+            'public_token' => Str::random(32),
+            'nb_registered' => 200,
         ]);
 
         Collection::create([
             'company_id' => $coop->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressCoop->id,
             'start_date' => '2025-07-01',
-            'end_date' => '2025-08-15', // Terminée bien avant 2026-06-10
-            'blood_units_collected' => 140,
-            'registered_count' => 220,
+            'end_date' => '2025-08-15',
+            'primary_color' => '#FF6B35',
+            'logo_url' => 'https://logo.clearbit.com/coop.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/coop-2025',
+            'public_token' => Str::random(32),
+            'nb_registered' => 220,
         ]);
 
-        // Nestlé : 2023 (terminée) + 2026 (EN COURS)
+        // Nestlé : 2023 + 2026 (EN COURS)
         Collection::create([
             'company_id' => $nestlé->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressNestlé->id,
             'start_date' => '2023-03-15',
             'end_date' => '2023-03-31',
-            'blood_units_collected' => 220,
-            'registered_count' => 350,
+            'primary_color' => '#6B4423',
+            'logo_url' => 'https://logo.clearbit.com/nestlé.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/nestlé-2023',
+            'public_token' => Str::random(32),
+            'nb_registered' => 350,
         ]);
 
         Collection::create([
             'company_id' => $nestlé->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressNestlé->id,
             'start_date' => '2026-05-15',
-            'end_date' => '2026-07-15', // EN COURS (aujourd'hui = 2026-06-10)
-            'blood_units_collected' => 95,
-            'registered_count' => 180,
+            'end_date' => '2026-07-15',
+            'primary_color' => '#6B4423',
+            'logo_url' => 'https://logo.clearbit.com/nestlé.ch',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/nestlé-2026',
+            'public_token' => Str::random(32),
+            'nb_registered' => 180,
         ]);
 
-        // Rolex : 2023 uniquement (terminée)
+        // Rolex : 2023
         Collection::create([
             'company_id' => $rolex->id,
+            'user_id' => $adminUser->id,
+            'address_id' => $addressRolex->id,
             'start_date' => '2023-07-01',
             'end_date' => '2023-07-31',
-            'blood_units_collected' => 80,
-            'registered_count' => 140,
+            'primary_color' => '#000000',
+            'logo_url' => 'https://logo.clearbit.com/rolex.com',
+            'onedoc_url' => 'https://onedoc.hug.ch/collections/rolex-2023',
+            'public_token' => Str::random(32),
+            'nb_registered' => 140,
         ]);
 
         // ===== LABELS =====
+        // Un label par année
 
-        // UBS
-        Label::create([
-            'company_id' => $ubs->id,
-            'year' => 2023,
-            'end_date' => '2025-02-01', // 2 ans après start_date collecte 2023
+        // 2023
+        $label2023 = Label::create(['name' => 'Label CTS 2023']);
+        $ubs->labels()->attach($label2023->id, [
+            'start_date' => '2023-02-01',
+            'end_date' => '2025-02-01',
         ]);
-
-        Label::create([
-            'company_id' => $ubs->id,
-            'year' => 2024,
-            'end_date' => '2026-03-01',
-        ]);
-
-        Label::create([
-            'company_id' => $ubs->id,
-            'year' => 2025,
-            'end_date' => '2027-04-01',
-        ]);
-
-        Label::create([
-            'company_id' => $ubs->id,
-            'year' => 2026,
-            'end_date' => '2028-05-01', // 2 ans après start_date collecte 2026 (en cours)
-        ]);
-
-        // Coop
-        Label::create([
-            'company_id' => $coop->id,
-            'year' => 2023,
+        $coop->labels()->attach($label2023->id, [
+            'start_date' => '2023-05-01',
             'end_date' => '2025-05-01',
         ]);
-
-        Label::create([
-            'company_id' => $coop->id,
-            'year' => 2024,
-            'end_date' => '2026-06-01',
-        ]);
-
-        Label::create([
-            'company_id' => $coop->id,
-            'year' => 2025,
-            'end_date' => '2027-07-01', // 2 ans après start_date collecte 2025
-        ]);
-
-        // Nestlé
-        Label::create([
-            'company_id' => $nestlé->id,
-            'year' => 2023,
+        $nestlé->labels()->attach($label2023->id, [
+            'start_date' => '2023-03-15',
             'end_date' => '2025-03-15',
         ]);
-
-        Label::create([
-            'company_id' => $nestlé->id,
-            'year' => 2026,
-            'end_date' => '2028-05-15', // 2 ans après start_date collecte 2026 (en cours)
-        ]);
-
-        // Rolex
-        Label::create([
-            'company_id' => $rolex->id,
-            'year' => 2023,
+        $rolex->labels()->attach($label2023->id, [
+            'start_date' => '2023-07-01',
             'end_date' => '2025-07-01',
         ]);
 
-        // ===== TROPHIES =====
-
-        // 2023 : Nestlé rank 1 (plus grosse donation), UBS rank 2
-        Trophee::create([
-            'company_id' => $nestlé->id,
-            'year' => 2023,
-            'rank' => 1,
+        // 2024
+        $label2024 = Label::create(['name' => 'Label CTS 2024']);
+        $ubs->labels()->attach($label2024->id, [
+            'start_date' => '2024-03-01',
+            'end_date' => '2026-03-01',
+        ]);
+        $coop->labels()->attach($label2024->id, [
+            'start_date' => '2024-06-01',
+            'end_date' => '2026-06-01',
         ]);
 
-        Trophee::create([
-            'company_id' => $ubs->id,
-            'year' => 2023,
-            'rank' => 2,
+        // 2025
+        $label2025 = Label::create(['name' => 'Label CTS 2025']);
+        $ubs->labels()->attach($label2025->id, [
+            'start_date' => '2025-04-01',
+            'end_date' => '2027-04-01',
+        ]);
+        $coop->labels()->attach($label2025->id, [
+            'start_date' => '2025-07-01',
+            'end_date' => '2027-07-01',
         ]);
 
-        // 2024 : UBS rank 1 (la plus régulière)
-        Trophee::create([
-            'company_id' => $ubs->id,
-            'year' => 2024,
-            'rank' => 1,
+        // 2026
+        $label2026 = Label::create(['name' => 'Label CTS 2026']);
+        $ubs->labels()->attach($label2026->id, [
+            'start_date' => '2026-05-01',
+            'end_date' => '2028-05-01',
+        ]);
+        $nestlé->labels()->attach($label2026->id, [
+            'start_date' => '2026-05-15',
+            'end_date' => '2028-05-15',
         ]);
 
-        // 2025 : UBS rank 1 (la plus régulière)
-        Trophee::create([
-            'company_id' => $ubs->id,
-            'year' => 2025,
-            'rank' => 1,
-        ]);
+        // ===== TROPHEES =====
+        // 3 types de trophée par année : Or, Argent, Bronze
 
-        // 2026 : Nestlé rank 1 (collecte en cours, belle performance), UBS rank 2
-        Trophee::create([
-            'company_id' => $nestlé->id,
-            'year' => 2026,
-            'rank' => 1,
-        ]);
+        // 2023
+        $tropheeOr2023 = Trophee::create(['name' => 'Trophée Or 2023', 'year' => 2023]);
+        $nestlé->trophees()->attach($tropheeOr2023->id, ['rank' => 1]);
 
-        Trophee::create([
-            'company_id' => $ubs->id,
-            'year' => 2026,
-            'rank' => 2,
-        ]);
+        $tropheeArgent2023 = Trophee::create(['name' => 'Trophée Argent 2023', 'year' => 2023]);
+        $ubs->trophees()->attach($tropheeArgent2023->id, ['rank' => 2]);
+
+        $tropheeBronze2023 = Trophee::create(['name' => 'Trophée Bronze 2023', 'year' => 2023]);
+        $coop->trophees()->attach($tropheeBronze2023->id, ['rank' => 3]);
+
+        // 2024
+        $tropheeOr2024 = Trophee::create(['name' => 'Trophée Or 2024', 'year' => 2024]);
+        $ubs->trophees()->attach($tropheeOr2024->id, ['rank' => 1]);
+
+        $tropheeArgent2024 = Trophee::create(['name' => 'Trophée Argent 2024', 'year' => 2024]);
+        $coop->trophees()->attach($tropheeArgent2024->id, ['rank' => 2]);
+
+        $tropheeBronze2024 = Trophee::create(['name' => 'Trophée Bronze 2024', 'year' => 2024]);
+        $rolex->trophees()->attach($tropheeBronze2024->id, ['rank' => 3]);
+
+        // 2025
+        $tropheeOr2025 = Trophee::create(['name' => 'Trophée Or 2025', 'year' => 2025]);
+        $ubs->trophees()->attach($tropheeOr2025->id, ['rank' => 1]);
+
+        $tropheeArgent2025 = Trophee::create(['name' => 'Trophée Argent 2025', 'year' => 2025]);
+        $coop->trophees()->attach($tropheeArgent2025->id, ['rank' => 2]);
+
+        // 2026
+        $tropheeOr2026 = Trophee::create(['name' => 'Trophée Or 2026', 'year' => 2026]);
+        $nestlé->trophees()->attach($tropheeOr2026->id, ['rank' => 1]);
+
+        $tropheeArgent2026 = Trophee::create(['name' => 'Trophée Argent 2026', 'year' => 2026]);
+        $ubs->trophees()->attach($tropheeArgent2026->id, ['rank' => 2]);
     }
 }
