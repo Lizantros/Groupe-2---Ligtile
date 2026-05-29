@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('company_trophee', function (Blueprint $table) {
             $table->id();
-            $table->integer('postal_code');
-            $table->string('city', 100);
-            $table->string('street', 100);
-            $table->integer('number');
+            $table->foreignId('company_id')->constrained()->restrictOnDelete();
+            $table->foreignId('trophee_id')->constrained()->restrictOnDelete();
+            $table->unique(['company_id', 'trophee_id']);
+            $table->integer('rank');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('company_trophee');
     }
 };

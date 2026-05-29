@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->integer('postal_code');
-            $table->string('city', 100);
-            $table->string('street', 100);
-            $table->integer('number');
+            $table->foreignId('address_id')->constrained()->restrictOnDelete();
+            $table->string('name', 100)->unique();
+            $table->string('phone_number', 100)->nullable();
+            $table->string('email', 100);
+            $table->integer('nb_employee');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('companies');
     }
 };
