@@ -17,7 +17,7 @@ const routes = [
   { hash: '#/prendre-rdv',  key: 'rdv',          component: Home },
 ]
 
-const { currentComponent, currentRoute, navigateTo } = useHashRoute(routes)
+const { currentComponent, currentRoute } = useHashRoute(routes)
 </script>
 
 <template>
