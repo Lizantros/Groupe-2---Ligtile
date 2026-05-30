@@ -51,8 +51,12 @@ class LabelCompanyController extends Controller
      */
     public function years(): JsonResponse
     {
+        $yearExpr = DB::connection()->getDriverName() === 'sqlite'
+            ? 'strftime("%Y", start_date)'
+            : 'YEAR(start_date)';
+
         $years = DB::table('company_label')
-            ->selectRaw('DISTINCT strftime("%Y", start_date) as year')
+            ->selectRaw("DISTINCT {$yearExpr} as year")
             ->orderByDesc('year')
             ->pluck('year');
 
