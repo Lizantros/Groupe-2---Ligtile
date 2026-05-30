@@ -59,6 +59,8 @@ export function useFetchApi(baseUrl = null, additionalHeaders = {}) {
         .then(response => {
           clearTimeout(timer)
 
+          const responseClone = response.clone()
+
           return response.json()
             .then(json => {
               if (!response.ok) {
@@ -68,11 +70,21 @@ export function useFetchApi(baseUrl = null, additionalHeaders = {}) {
               }
             })
             .catch(() => {
-              reject({
-                status: response.status,
-                statusText: 'Error parsing response body as JSON',
-                data: null,
-              })
+              return responseClone.text()
+                .then(() => {
+                  reject({
+                    status: response.status,
+                    statusText: 'Error parsing response body as JSON',
+                    data: null,
+                  })
+                })
+                .catch(() => {
+                  reject({
+                    status: response.status,
+                    statusText: 'Error parsing response body',
+                    data: null,
+                  })
+                })
             })
         })
         .catch(err => {
@@ -97,7 +109,7 @@ export function useFetchApi(baseUrl = null, additionalHeaders = {}) {
     if (options?.url == null || typeof options?.url !== 'string') {
       error.value = { status: 0, statusText: 'The URL must be a string.', data: null }
       loading.value = false
-      return { data, error, loading }
+      return { data, error, loading, fetchNow: () => {} }
     }
 
     function fetchNow() {
